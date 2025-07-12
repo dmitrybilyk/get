@@ -1,0 +1,49 @@
+### Get all people
+GET http://localhost:8080/people
+Accept: application/json
+
+###
+
+### Create a new person
+POST http://localhost:8080/people
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Dmytro",
+  "age": 35
+}
+
+<> 2025-07-12T100456.200.json
+<> 2025-07-12T100358.500.json
+<> 2025-07-12T100345.500.json
+<> 2025-07-12T095745.500.json
+
+### Send message to Kafka
+POST http://localhost:8080/kafka/send?message=HelloKafka
+Accept: text/plain
+
+
+<> 2025-07-12T101939.200.txt
+<> 2025-07-12T101455.405.json
+<> 2025-07-12T101358.404.json
+<> 2025-07-12T101343.404.json
+
+### Send JSON message to Kafka
+POST http://localhost:8080/kafka/send-json
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "topic": "my-topic",
+  "message": "Hello from JSON"
+}
+
+<> 2025-07-12T101919.200.txt
+
+
+###
+GET http://localhost:8080/people/slow/7
+
+###
+GET http://localhost:8080/people/with-addresses/687214feb74015914413bd46
