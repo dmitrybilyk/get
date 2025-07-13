@@ -1,11 +1,11 @@
 ### Get all people
-GET http://localhost:8080/people
+GET http://localhost:8081/people
 Accept: application/json
 
 ###
 
 ### Create a new person
-POST http://localhost:8080/people
+POST http://localhost:8081/people
 Content-Type: application/json
 Accept: application/json
 
@@ -20,7 +20,7 @@ Accept: application/json
 <> 2025-07-12T095745.500.json
 
 ### Send message to Kafka
-POST http://localhost:8080/kafka/send?message=HelloKafka
+POST http://localhost:8081/kafka/send?message=HelloKafka
 Accept: text/plain
 
 
@@ -30,7 +30,7 @@ Accept: text/plain
 <> 2025-07-12T101343.404.json
 
 ### Send JSON message to Kafka
-POST http://localhost:8080/kafka/send-json
+POST http://localhost:8081/kafka/send-json
 Content-Type: application/json
 Accept: text/plain
 

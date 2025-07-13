@@ -1,5 +1,7 @@
 package com.knowledge.get.service
 
+import com.knowledge.get.dao.api.PersonDao
+import com.knowledge.get.dao.impl.PersonDaoMongoImpl
 import com.knowledge.get.model.Address
 import com.knowledge.get.model.Person
 import com.knowledge.get.repository.PersonRepository
@@ -12,9 +14,12 @@ import reactor.core.publisher.Mono
 
 @Service
 class PersonService(private val repo: PersonRepository,
-                    private val mongoTemplate: ReactiveMongoTemplate,) {
+                    private val mongoTemplate: ReactiveMongoTemplate,
+                    private val personDao: PersonDao
+) {
 
-    fun getAll(): Flux<Person> = repo.findAll()
+//    fun getAll(): Flux<Person> = repo.findAll()
+    fun getAll(): Flux<Person> = personDao.getAll()
 
     fun getById(id: String): Mono<Person> = repo.findById(id)
 
