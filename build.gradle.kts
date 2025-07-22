@@ -27,6 +27,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.kafka:spring-kafka")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -34,6 +35,7 @@ dependencies {
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("org.testcontainers:testcontainers:1.19.7")
 	testImplementation("org.testcontainers:junit-jupiter:1.19.7")
+	testImplementation("org.mockito:mockito-inline:5.2.0")
 
 	// Optional - use specific containers depending on what you test
 	testImplementation("org.testcontainers:kafka:1.19.7")
