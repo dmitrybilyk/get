@@ -16,7 +16,9 @@ import reactor.core.publisher.Mono
 class ItemController(private val service: ItemService) {
 
     @PostMapping
-    fun createItem(@RequestBody item: Item): Mono<Item> = service.save(item)
+    fun createItem(@RequestBody item: Item): Mono<Item> {
+        return service.save(item)
+    }
 
     @GetMapping
     fun getAllItems(): Flux<Item> = service.findAll()
