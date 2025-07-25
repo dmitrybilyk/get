@@ -204,6 +204,89 @@ class FluxMonoTests {
     }
 
 
+    @Test
+    fun testMono() {
+        val monoPlayer = Mono.just(Player("Dmytro", "Bilyk"))
+            .flatMap {
+                uppercaseAsync(it)
+            }
+
+        monoPlayer.subscribe{println(it)}
+        StepVerifier.create(monoPlayer)
+            .expectNext(Player("DMYTRO", "Bilyk"))
+            .verifyComplete()
+    }
+
+    @Test
+    fun testOnErrorResume() {
+        val monoPlayer = Mono.error<Player>(RuntimeException("Something went wrong"))
+            .onErrorResume { e ->
+                println("Handling error: ${e.message}")
+                Mono.just(Player("Fallback", "User"))
+            }
+
+        StepVerifier.create(monoPlayer)
+            .expectNext(Player("Fallback", "User"))
+            .verifyComplete()
+    }
+
+    @Test
+    fun doOnError() {
+        val monoPlayer = Mono.just(Player("Dmytro", "Bilyk"))
+            .flatMap {
+                Mono.error<Player>(IllegalStateException("Something went wrong"))
+            }
+            .doOnError { e -> println(e.message) }
+
+        StepVerifier.create(monoPlayer)
+        .expectErrorMatches{ it is IllegalStateException && it.message == "Something went wrong" }
+        .verify()
+    }
+
+    @Test
+    fun withFlux() {
+        val flux = Flux.just("Dmytro", "Bilyk")
+            .doOnSubscribe{ println("$it Subscribed") }
+            .doOnNext{ println(" do on next: $it")}
+            .map {it.uppercase()}
+            .doOnComplete{ println("doOnComplete")}
+            .doOnTerminate { println("🚦 doOnTerminate") }
+            .log()
+            .doFinally { signalType -> println("🔚 doFinally: $signalType") }
+
+        StepVerifier.create(flux)
+            .expectNext("DMYTRO", "BILYK")
+            .verifyComplete()
+    }
+
+    fun unreliableUppercaseAsync(player: Player): Mono<Player> {
+        var attempt = 0
+        return Mono.defer {
+            attempt++
+            if (attempt < 3) {
+                println("Attempt $attempt: Simulating failure")
+                Mono.error(RuntimeException("Temporary failure"))
+            } else {
+                println("Attempt $attempt: Success")
+                Mono.just(player.copy(name = player.name.uppercase()))
+            }
+        }.delayElement(Duration.ofMillis(100)) // Simulate async delay
+    }
+
+    fun uppercaseAsync(player: Player): Mono<Player> {
+        return Mono.just(player.copy(name = player.name.uppercase()))
+            .delayElement(Duration.ofSeconds(1))
+    }
+
 }
+
+
+
+
+
+
+
+
+
 
 data class Player(val name:String, val surname: String)
