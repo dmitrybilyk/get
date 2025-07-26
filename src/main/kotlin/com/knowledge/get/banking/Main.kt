@@ -3,8 +3,11 @@ package com.knowledge.get.banking
 import kotlinx.coroutines.reactive.collect
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
+import java.lang.Thread.sleep
 import java.time.Duration
 import java.util.concurrent.atomic.*
+import java.util.function.BiFunction
 
 
 fun main() {
@@ -170,24 +173,109 @@ fun main() {
 //        .doOnNext { println(it) }
 //        .blockLast(Duration.ofSeconds(1))
 
-    Flux.interval(Duration.ofMillis(500)) // Every 500ms a new transaction
-        .map { id -> Transaction(id, (10..300).random()) } // Simulate transaction values
-        .take(20) // Simulate only 20 transactions
-        .doOnNext { println("Received: $it") }
-        .bufferTimeout(5, Duration.ofSeconds(3)) // Batch of 5 or every 3 seconds
-        .filter { it.isNotEmpty() } // Ignore empty batches (shouldn’t happen here)
-        .map { batch ->
-            batch.filter { it.amount > 100 } // Only keep important ones
+//    Flux.interval(Duration.ofMillis(500)) // Every 500ms a new transaction
+//        .map { id -> Transaction(id, (10..300).random()) } // Simulate transaction values
+//        .take(20) // Simulate only 20 transactions
+//        .doOnNext { println("Received: $it") }
+//        .bufferTimeout(5, Duration.ofSeconds(3)) // Batch of 5 or every 3 seconds
+//        .filter { it.isNotEmpty() } // Ignore empty batches (shouldn’t happen here)
+//        .map { batch ->
+//            batch.filter { it.amount > 100 } // Only keep important ones
+//        }
+//        .filter { it.isNotEmpty() } // Drop batches where nothing is important
+//        .flatMap { importantBatch ->
+//            saveBatchToDatabase(importantBatch)
+//        }
+//        .doOnComplete { println("All transactions processed.") }
+//        .blockLast()
+
+    val personsList = listOf(
+        Person("Dmytro", "Kharkiv"),
+        Person("Andriy", "Kyiv"),
+        Person("Ivan", "Lviv"))
+
+    val firmsList = listOf(
+        Firm("Second Firm", "Andriy"),
+        Firm("First Firm", "Dmytro"))
+
+    val carsList = listOf(
+        Car(null, "Andriy"),
+        Car("Fiat", "Dmytro"))
+
+
+
+    val personsFlux = Flux.defer {
+        Flux.fromIterable(personsList)
+    }.delayElements(Duration.ofSeconds(1))
+
+    val firmsFlux = Flux.fromIterable(firmsList)
+
+    val carsFlux = Flux.fromIterable(carsList)
+
+
+
+    personsFlux
+        .flatMap { person->
+            val firmMono = findFirmByOwner(firmsFlux, person)
+
+            val carMono = findCarByOwner(carsFlux, person)
+
+            Mono.zip(firmMono, carMono) { firm, car ->
+                PersonSummary(person.name, car.name, firm.name)
+            }
         }
-        .filter { it.isNotEmpty() } // Drop batches where nothing is important
-        .flatMap { importantBatch ->
-            saveBatchToDatabase(importantBatch)
-        }
-        .doOnComplete { println("All transactions processed.") }
+        .doOnNext { println(it) }
+        .log()
+        .subscribeOn(Schedulers.parallel())
         .blockLast()
 
+//
+//    val firmsFlux2 = Flux.fromIterable(firmsList)
+//
+//    Flux.merge(firmsFlux2, firmsFlux)
+//        .subscribe{ println(it) }
 
+
+
+//    println(" --- Thread name :: " + Thread.currentThread().name)
+//
+//    Flux.fromIterable(personsList)
+//        .flatMap {
+//            Mono.just(it)
+//                .map { person ->
+//                    if (person.name == "Anriy") {
+//                        throw RuntimeException("Something went wrong")
+//                    }
+//                    println(" --- Thread name in map :: " + Thread.currentThread().name)
+//                    "${person.name} - ${person.city}"// alias - name of event name+city
+//                }
+//                .doOnNext{ toPrint -> println(toPrint) }
+//                .onErrorResume{ ex -> Mono.just("${ex.message}") }
+//                .subscribeOn(Schedulers.parallel())
+//        }
+//        .subscribe { alias ->
+//            println(" --- Thread name in subs :: " + Thread.currentThread().name)
+//            println("Received $alias")
+//        }
+//
+//        sleep(10000)
 }
+
+private fun findCarByOwner(
+    carsFlux: Flux<Car>,
+    person: Person
+) = carsFlux
+    .filter { it.owner.equals(person.name, ignoreCase = true) }
+    .next()
+    .defaultIfEmpty(Car("Unknown Car", person.name))
+
+private fun findFirmByOwner(
+    firmsFlux: Flux<Firm>,
+    person: Person
+) = firmsFlux
+    .filter { it.owner.equals(person.name, ignoreCase = true) }
+    .next()
+    .defaultIfEmpty(Firm("Unknown Firm", person.name))
 
 data class Transaction(val id: Long, val amount: Int)
 
@@ -198,6 +286,12 @@ fun saveBatchToDatabase(batch: List<Transaction>): Mono<Void> {
 }
 
 data class Person(val name: String, val city: String)
+
+data class Firm(val name: String, val owner: String)
+
+data class Car(val name: String?, val owner: String)
+
+data class PersonSummary(val name: String, val carBrand: String?, val firmName: String)
 
 class Main {
 
