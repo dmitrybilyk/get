@@ -1,5 +1,8 @@
 package com.knowledge.get.banking
 
+import com.knowledge.get.banking.dao.CarDao
+import com.knowledge.get.banking.dao.FirmDao
+import com.knowledge.get.banking.dao.PersonDao
 import kotlinx.coroutines.reactive.collect
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -203,34 +206,70 @@ fun main() {
         Car("Fiat", "Dmytro"))
 
 
+    val personDao = PersonDao()
+    val firmDao = FirmDao()
+    val carDao = CarDao()
 
     val personsFlux = Flux.defer {
-        Flux.fromIterable(personsList)
-    }.delayElements(Duration.ofSeconds(1))
+        Flux.fromIterable(personDao.getPersons())
+    }
+        .subscribeOn(Schedulers.parallel())
 
-    val firmsFlux = Flux.fromIterable(firmsList)
+    val firmsFlux = Flux.defer {
+        Flux.fromIterable(firmDao.getFirms())
+    }
+        .subscribeOn(Schedulers.parallel())
 
-    val carsFlux = Flux.fromIterable(carsList)
+    val carsFlux = Flux.defer {
+        Flux.fromIterable(carDao.getCars())
+    }
+        .subscribeOn(Schedulers.parallel())
+
+    val firmsMono = firmsFlux.collectMap { it.owner }
+
+    val carsMono = carsFlux.collectMap { it.owner }
 
     personsFlux.flatMap { person ->
-        val firmsMono = firmsFlux
-            .filter { firm -> firm.owner == person.name }
-            .next()
-
-        val carsMono = carsFlux
-            .filter { car -> car.owner == person.name }
-            .next()
-            .defaultIfEmpty(Car("Unknown car", person.name))
-
-        Flux.zip(firmsMono, carsMono) { firm, car ->
-            PersonSummary(person.name, car.name, firm.name )
+        val monoFirm = firmsMono.map { firmMap -> firmMap[person.name] }
+        val monoCar = carsMono.map { carMap -> carMap[person.name] }
+        Mono.zip(monoFirm, monoCar) { firm, car ->
+            PersonSummary(person.name, car!!.name, firm!!.name)
         }
-
     }
-        .doOnNext{ println(it) }
-        .subscribe()
+        .subscribe{ println(it) }
 
-    sleep(25000)
+        sleep(5000)
+//    {
+//        Flux.fromIterable(personsList)
+//    }
+//        .delayElements(Duration.ofSeconds(1))
+
+//    val firmsFlux = Flux.fromIterable(firmsList)
+
+//    val carsFlux = Flux.fromIterable(carsList)
+
+//    personsFlux.flatMap { person ->
+//        val firmsMono = firmsFlux
+//            .filter { firm -> firm.owner == person.name }
+//            .next()
+//
+//        firmsFlux
+//            .collectMap {  }
+//
+//        val carsMono = carsFlux
+//            .filter { car -> car.owner == person.name }
+//            .next()
+//            .defaultIfEmpty(Car("Unknown car", person.name))
+//
+//        Flux.zip(firmsMono, carsMono) { firm, car ->
+//            PersonSummary(person.name, car.name, firm.name )
+//        }
+//
+//    }
+//        .doOnNext{ println(it) }
+//        .subscribe()
+//
+//    sleep(10000)
 
 
 
