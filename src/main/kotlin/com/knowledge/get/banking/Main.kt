@@ -214,20 +214,23 @@ fun main() {
 
 
 
-    personsFlux
-        .flatMap { person->
-            val firmMono = findFirmByOwner(firmsFlux, person)
 
-            val carMono = findCarByOwner(carsFlux, person)
 
-            Mono.zip(firmMono, carMono) { firm, car ->
-                PersonSummary(person.name, car.name, firm.name)
-            }
-        }
-        .doOnNext { println(it) }
-        .log()
-        .subscribeOn(Schedulers.parallel())
-        .blockLast()
+
+//    personsFlux
+//        .flatMap { person->
+//            val firmMono = findFirmByOwner(firmsFlux, person)
+//
+//            val carMono = findCarByOwner(carsFlux, person)
+//
+//            Mono.zip(firmMono, carMono) { firm, car ->
+//                PersonSummary(person.name, car.name, firm.name)
+//            }
+//        }
+//        .doOnNext { println(it) }
+//        .log()
+//        .subscribeOn(Schedulers.parallel())
+//        .blockLast()
 
 //
 //    val firmsFlux2 = Flux.fromIterable(firmsList)

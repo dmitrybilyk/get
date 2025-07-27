@@ -8,5 +8,4 @@ data class Customer(
     @Id val id: String? = null,
     val name: String? = null,
     val email: String
-) {
-}
+)
