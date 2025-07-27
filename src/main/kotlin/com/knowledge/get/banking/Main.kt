@@ -212,6 +212,26 @@ fun main() {
 
     val carsFlux = Flux.fromIterable(carsList)
 
+    personsFlux.flatMap { person ->
+        val firmsMono = firmsFlux
+            .filter { firm -> firm.owner == person.name }
+            .next()
+
+        val carsMono = carsFlux
+            .filter { car -> car.owner == person.name }
+            .next()
+            .defaultIfEmpty(Car("Unknown car", person.name))
+
+        Flux.zip(firmsMono, carsMono) { firm, car ->
+            PersonSummary(person.name, car.name, firm.name )
+        }
+
+    }
+        .doOnNext{ println(it) }
+        .subscribe()
+
+    sleep(25000)
+
 
 
 
