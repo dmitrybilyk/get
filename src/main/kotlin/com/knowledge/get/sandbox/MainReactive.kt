@@ -4,7 +4,9 @@ import com.knowledge.get.sandbox.model.Book
 import com.knowledge.get.sandbox.repository.reactive.InMemoryReactiveRepository
 import com.knowledge.get.sandbox.service.reactive.ReactiveBookService
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.lang.Thread.sleep
+import java.time.Duration
 
 fun main() {
     val bookRepo = InMemoryReactiveRepository<Book, String> { it.id }
@@ -21,6 +23,4 @@ fun main() {
         .thenMany(bookService.getAll())
         .doOnNext { println("Final: $it") }
         .blockLast()
-
-    sleep(3000)
 }
