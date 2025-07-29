@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import java.lang.Thread.sleep
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.*
 import java.util.function.BiFunction
 
@@ -192,53 +194,99 @@ fun main() {
 //        .doOnComplete { println("All transactions processed.") }
 //        .blockLast()
 
-    val personsList = listOf(
-        Person("Dmytro", "Kharkiv"),
-        Person("Andriy", "Kyiv"),
-        Person("Ivan", "Lviv"))
-
-    val firmsList = listOf(
-        Firm("Second Firm", "Andriy"),
-        Firm("First Firm", "Dmytro"))
-
-    val carsList = listOf(
-        Car(null, "Andriy"),
-        Car("Fiat", "Dmytro"))
-
-
+//    val personsList = listOf(
+//        Person("Dmytro", "Kharkiv"),
+//        Person("Andriy", "Kyiv"),
+//        Person("Ivan", "Lviv"))
+//
+//    val firmsList = listOf(
+//        Firm("Second Firm", "Andriy"),
+//        Firm("First Firm", "Dmytro"))
+//
+//    val carsList = listOf(
+//        Car(null, "Andriy"),
+//        Car("Fiat", "Dmytro"))
+//
+//
     val personDao = PersonDao()
     val firmDao = FirmDao()
     val carDao = CarDao()
 
-    val personsFlux = Flux.defer {
-        Flux.fromIterable(personDao.getPersons())
+    Flux.defer {
+        val now = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+        println(now.format(formatter))
+        Mono.fromCallable { personDao.getPersons() }
+            .doOnNext { persons ->
+                println(persons)
+                println(Thread.currentThread().name)
+            }
+            .subscribeOn(Schedulers.parallel())
     }
-        .subscribeOn(Schedulers.parallel())
+        .subscribe { println(it) }
 
-    val firmsFlux = Flux.defer {
-        Flux.fromIterable(firmDao.getFirms())
-    }
-        .subscribeOn(Schedulers.parallel())
+    sleep(3000)
 
-    val carsFlux = Flux.defer {
-        Flux.fromIterable(carDao.getCars())
-    }
-        .subscribeOn(Schedulers.parallel())
 
-    val firmsMono = firmsFlux.collectMap { it.owner }
+//
+//    val personsFlux = Flux.defer {
+//        Flux.fromIterable(personDao.getPersons())
+//    }
+////        .subscribeOn(Schedulers.parallel())
+//
+//    val firmsFlux = Flux.defer {
+//        Flux.fromIterable(firmDao.getFirms())
+//    }
+////        .subscribeOn(Schedulers.parallel())
+//
+//    val carsFlux = Flux.defer {
+//        Flux.fromIterable(carDao.getCars())
+//    }
+////        .subscribeOn(Schedulers.parallel())
+//
+//    val firmsMono = firmsFlux.collectMap { it.owner }
+//
+//    val carsMono = carsFlux.collectMap { it.owner }
 
-    val carsMono = carsFlux.collectMap { it.owner }
+//    personsFlux.flatMap { person ->
+//        val monoFirm = firmsMono.map { firmMap -> firmMap[person.name] }
+//        val monoCar = carsMono.map { carMap -> carMap[person.name] }
+//        Mono.zip(monoFirm, monoCar) { firm, car ->
+//            PersonSummary(person.name, car!!.name, firm!!.name)
+//        }
+//    }
+//        .subscribeOn(Schedulers.parallel())
+//        .subscribe{ println(it) }
 
-    personsFlux.flatMap { person ->
-        val monoFirm = firmsMono.map { firmMap -> firmMap[person.name] }
-        val monoCar = carsMono.map { carMap -> carMap[person.name] }
-        Mono.zip(monoFirm, monoCar) { firm, car ->
-            PersonSummary(person.name, car!!.name, firm!!.name)
-        }
-    }
-        .subscribe{ println(it) }
 
-        sleep(5000)
+//    val result = Flux.defer {
+//        val firmsMono = Flux.fromIterable(firmDao.getFirms())
+////            .subscribeOn(Schedulers.parallel())
+//            .collectMap { it.owner }
+//        val carsMono = Flux.fromIterable(carDao.getCars())
+////            .subscribeOn(Schedulers.parallel())
+//            .collectMap { it.owner }
+//        val persons = personDao.getPersons()
+//
+//        Mono.zip(firmsMono, carsMono)
+//            .map { tuple -> tuple.t1 to tuple.t2 }
+//            .flatMapMany { (firmMap, carMap) ->
+//                Flux.fromIterable(persons)
+////                    .subscribeOn(Schedulers.parallel())
+//                    .map { person ->
+//                    PersonSummary(
+//                        person.name,
+//                        carMap[person.name]!!.name,
+//                        firmMap[person.name]!!.name
+//                    )
+//                }
+//            }
+//    }
+//        .subscribeOn(Schedulers.parallel())
+//
+//    result.subscribe { println(it) }
+//
+//    sleep(10000)
 //    {
 //        Flux.fromIterable(personsList)
 //    }

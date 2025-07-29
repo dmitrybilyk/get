@@ -1,5 +1,6 @@
 package com.knowledge.get.kotlin.controller
 
+import com.knowledge.get.kotlin.controller.response.ApiResponse
 import com.knowledge.get.kotlin.model.Item
 import com.knowledge.get.kotlin.service.ItemService
 import org.springframework.web.bind.annotation.GetMapping
@@ -25,7 +26,9 @@ class ItemController(private val service: ItemService) {
     fun getAllItems(): Flux<Item> = service.findAll()
 
     @GetMapping("/{id}")
-    fun getItemById(@PathVariable id: String): Mono<Item> = service.findById(id)
+    fun getItemById(@PathVariable id: String): Mono<ApiResponse<Item>> = service.findById(id)
+        .map<ApiResponse<Item>> { ApiResponse.Success(it) }
+        .onErrorResume { Mono.just(ApiResponse.Error(it.message ?: "Unknown error")) }
 
     @GetMapping("/search/price")
     fun getItemsByPriceRange(@RequestParam from: Double, @RequestParam to: Double, @RequestParam page: Int): Flux<Item> {

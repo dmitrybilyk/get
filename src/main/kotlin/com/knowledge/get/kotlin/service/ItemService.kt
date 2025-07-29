@@ -11,9 +11,9 @@ import reactor.core.publisher.Mono
 import java.time.Duration
 
 @Service
-class ItemService(
+class ItemService (
     private val repository: ItemRepository,
-    private val externalItemService: ExternalItemService,
+    private val enrichItemService: EnrichItemService,
 //    private val kafkaProducer: ItemKafkaProducer
 ) {
 
@@ -28,13 +28,14 @@ class ItemService(
                     price = it.price.coerceAtLeast(0.0)
                 )
             }
-            .flatMap { externalItemService.enrichItem(it)
+            .flatMap { enrichItemService.enrichItem(it)
                 .timeout(Duration.ofSeconds(1))
                 .retry(1)
                 .onErrorResume { e ->
                     Mono.error(RuntimeException("Failed to enrich item: ${e.message}", e))
                 }}
-            .flatMap { repository.save(it) }
+            .flatMap { repository.save(it)
+                .also { println("About to save item: $it") }}
 //            .doOnNext {
 //                kafkaProducer.send("item-topic", it)
 //            }

@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono
 import java.time.Duration
 
 @Service
-class ExternalItemServiceImpl : ExternalItemService {
+class EnrichItemServiceImpl : EnrichItemService {
     override fun enrichItem(item: Item): Mono<Item> {
         return Mono.just(item.copy(name = "Enriched for ${item.name}"))
             .delayElement(Duration.ofMillis(300))
