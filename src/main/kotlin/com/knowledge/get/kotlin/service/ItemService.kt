@@ -62,4 +62,8 @@ class ItemService (
             .doOnNext { println("found: $it") }
             .doOnError { println("error: $it") }
     }
+
+    fun findByManufacturer(name: String): Flux<Item> {
+        return repository.findByManufacturerName(name)
+    }
 }

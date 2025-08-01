@@ -5,8 +5,8 @@ import com.knowledge.get.sandbox.repository.reactive.InMemoryReactiveRepository
 import com.knowledge.get.sandbox.service.reactive.ReactiveBookService
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import java.lang.Thread.sleep
-import java.time.Duration
 
 fun main() {
     val bookRepo = InMemoryReactiveRepository<Book, String> { it.id }
@@ -17,10 +17,32 @@ fun main() {
         Book("2", "Effective Kotlin", "Marcin Moskala")
     )
 
-    booksFlux
-        .flatMap { bookService.create(it) }
-        .doOnNext { println("Saved: $it") }
-        .thenMany(bookService.getAll())
-        .doOnNext { println("Final: $it") }
-        .blockLast()
+    val books = listOf(
+        Book("1", "Kotlin in Action", "Dmitry Jemerov"),
+        Book("2", "Effective Kotlin", "Marcin Moskala")
+    )
+
+    booksFlux.flatMap {
+        bookService.create(it)
+            .subscribeOn(Schedulers.parallel())
+    }
+//        .subscribeOn(Schedulers.parallel())
+        .subscribe { println(it) }
+
+    sleep(7000)
+
+//    booksFlux.{ book ->
+//        bookService.create(book)
+//            .doOnNext {
+//                println("In thread ${Thread.currentThread().name}")
+//                println(it)
+//            }
+//            .subscribe { println(it) }
+//    }
+
+
+
+//    booksFlux
+//        .flatMap { bookService.create(it) }
+
 }

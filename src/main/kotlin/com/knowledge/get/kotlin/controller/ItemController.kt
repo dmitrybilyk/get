@@ -35,4 +35,9 @@ class ItemController(private val service: ItemService) {
         return service.findByPriceRange(from, to, page)
     }
 
+    @GetMapping("/search/manufacturer")
+    fun findByManufacturer(@RequestParam name: String): Flux<Item> {
+        return service.findByManufacturer(name)
+    }
+
 }

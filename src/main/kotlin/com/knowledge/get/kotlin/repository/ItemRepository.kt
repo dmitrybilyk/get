@@ -13,4 +13,7 @@ interface ItemRepository : ReactiveMongoRepository<Item, String> {
 
     @Query(" {'price': {\$gte:  ?0, \$lte:  ?1 } }")
     fun findByPriceRange(from: Double, to: Double, pageable: Pageable): Flux<Item>
+
+    @Query("{ 'manufacturer.name': ?0 }")
+    fun findByManufacturerName(name: String): Flux<Item>
 }
