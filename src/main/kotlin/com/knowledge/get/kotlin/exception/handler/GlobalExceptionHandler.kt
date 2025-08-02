@@ -60,7 +60,9 @@ class GlobalExceptionHandler {
     @ExceptionHandler(WebExchangeBindException::class)
     fun handleValidationError(ex: WebExchangeBindException): ResponseEntity<ApiResponse.Error> {
         val firstError = ex.bindingResult.fieldErrors.firstOrNull()
-        val message = firstError?.defaultMessage ?: "Validation error"
+        val message = firstError?.let {
+            "${it.field}: ${it.defaultMessage}"
+        } ?: "Validation error"
         return ResponseEntity.badRequest().body(ApiResponse.Error(message))
     }
 }

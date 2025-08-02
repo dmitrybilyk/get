@@ -3,11 +3,8 @@ package com.knowledge.get.kotlin.controller
 import com.knowledge.get.kotlin.controller.response.ApiResponse
 import com.knowledge.get.kotlin.model.Item
 import com.knowledge.get.kotlin.model.ItemWithProducer
-import com.knowledge.get.kotlin.model.Producer
 import com.knowledge.get.kotlin.service.ItemService
-import com.knowledge.get.kotlin.service.ProducerService
 import org.springframework.data.domain.PageImpl
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,8 +20,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/items")
 class ItemController(
-    private val service: ItemService,
-    private val producerService: ProducerService
+    private val service: ItemService
 ) {
 
     @PostMapping
@@ -34,36 +30,14 @@ class ItemController(
                 val response: ApiResponse<Item> = ApiResponse.Success(savedItem)
                 ResponseEntity.ok(response)
             }
-        // we handle exceptions in GlobalExceptionHandler
-//            .onErrorResume { e ->
-//                val error = ApiResponse.Error("Failed to save item: ${e.message}")
-//                Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error))
-//            }
     }
 
-    @PostMapping("/producer")
-    fun createProducer(@Valid @RequestBody producer: Producer): Mono<ResponseEntity<ApiResponse<Producer>>> {
-        return producerService.save(producer)
-            .map { savedProducer ->
-                ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.Success(savedProducer))
-            }
-    }
-
-    @PostMapping("/with-producer")
+    @PostMapping("/with-producers")
     fun createItemWithProducer(@Valid @RequestBody item: Item): Mono<ResponseEntity<ApiResponse<Item>>> {
-        return producerService.getProducerById(item.producerId!!.toString())
-            .switchIfEmpty(Mono.error(IllegalArgumentException("Producer not found")))
-            .flatMap {
-                service.save(item)
-            }
+        return service.save(item)
             .map { savedItem ->
                 val response: ApiResponse<Item> = ApiResponse.Success(savedItem)
                 ResponseEntity.ok(response)
-            }
-            .onErrorResume { e ->
-                val error = ApiResponse.Error("Failed to create item: ${e.message}")
-                Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error))
             }
     }
 

@@ -6,9 +6,9 @@ import com.knowledge.get.kotlin.exception.NonPositivePriceException
 import com.knowledge.get.kotlin.model.Item
 import com.knowledge.get.kotlin.model.ItemWithProducer
 import com.knowledge.get.kotlin.repository.ItemRepository
+import org.bson.types.ObjectId
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
@@ -19,10 +19,11 @@ import reactor.core.publisher.Mono
 import java.time.Duration
 
 @Service
-class ItemService (
+class ItemService(
     private val repository: ItemRepository,
     private val enrichItemService: EnrichItemService,
-    private val mongoTemplate: ReactiveMongoTemplate
+    private val mongoTemplate: ReactiveMongoTemplate,
+    private val producerService: ProducerService
 //    private val kafkaProducer: ItemKafkaProducer
 ) {
 
@@ -76,7 +77,8 @@ class ItemService (
     }
 
     fun save(item: Item): Mono<Item> {
-        return Mono.just(item)
+        return validateProducerExists(item.producerId!!)
+            .then(Mono.just(item))
             .flatMap(::validatePrice)
             .map(::normalizeItem)
             .flatMap(::enrichItem)
@@ -90,6 +92,16 @@ class ItemService (
             Mono.just(item)
         } else {
             Mono.error(NonPositivePriceException("Item price must be positive"))
+        }
+    }
+
+    private fun validateProducerExists(producerId: ObjectId): Mono<Void> {
+        return if (producerId == null) {
+            Mono.error(IllegalArgumentException("Producer with id $producerId is null"))
+        } else {
+            producerService.getProducerById(producerId.toString())
+                .switchIfEmpty(Mono.error(IllegalArgumentException("Producer not found")))
+                .then()
         }
     }
 
