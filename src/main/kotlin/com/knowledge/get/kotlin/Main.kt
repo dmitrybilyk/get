@@ -31,33 +31,33 @@ fun Item.normalize(): Item = copy(
 )
 
 fun main() {
-
-    val item = Item("Dmytro item", 200.0, Status.FIRST)
-        .also {
-            println("Original - $it")
-            it.status = Status.SECOND
-        }
-
-    println(item)
-
-    val newItem = with(item) {
-        name = "New name"
-        item
-    }
-
-    newItem.apply {
-        name = "New name2"
-        status = Status.THIRD
-        price = -20.0
-    }
-
-    println(newItem.normalize())
-
-    val item2: Item? = null
-    item2.let {
-        println("Original - ${it?.status}")
-        println("Original2 - $it")
-    }
+//
+//    val item = Item("Dmytro item", 200.0, Status.FIRST)
+//        .also {
+//            println("Original - $it")
+//            it.status = Status.SECOND
+//        }
+//
+//    println(item)
+//
+//    val newItem = with(item) {
+//        name = "New name"
+//        item
+//    }
+//
+//    newItem.apply {
+//        name = "New name2"
+//        status = Status.THIRD
+//        price = -20.0
+//    }
+//
+//    println(newItem.normalize())
+//
+//    val item2: Item? = null
+//    item2.let {
+//        println("Original - ${it?.status}")
+//        println("Original2 - $it")
+//    }
 
 
 
@@ -128,6 +128,40 @@ fun main() {
 //    map["Dmytro"] = 44
 
 //    useItems(items)
+
+    val namesMap = mutableMapOf("Dmytro2" to 44, "Ruslan" to 47)
+    namesMap.getOrPut("Dmytro") {
+        55
+    }
+
+    val value = namesMap.let {
+        println(it["Dmytro2"])
+        it["Dmytro55"] = 155
+        "dfdf"
+    }
+    println(namesMap["Dmytro55"])
+    println(value)
+
+    val itemParent = Item("name", 33.4, Status.SECOND)
+    itemParent.apply {
+        name = "new name"
+    }
+
+    println(itemParent)
+
+    itemParent.also {
+        println(it)
+        it.name = "new name2"
+    }
+
+    println(itemParent)
+
+    println(itemParent.run {
+        name = "new name3"
+        true
+    })
+
+    println(itemParent)
 
 }
 

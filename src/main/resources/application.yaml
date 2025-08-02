@@ -1,7 +1,13 @@
 spring:
+
   data:
     mongodb:
       uri: mongodb://user123:pass123@localhost:27017/testdb?authSource=admin
+
+  rsocket:
+    server:
+      port: 7000
+      transport: tcp
 
   jackson:
     deserialization:

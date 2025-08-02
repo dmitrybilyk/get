@@ -17,3 +17,18 @@ data class EmbeddedManufacturer (
     val name: String,
     val country: String
 )
+
+data class ItemDto(
+    val id: String? = null,
+    val name: String? = null,
+    val price: Double,
+    val producerId: String? = null
+)
+
+
+fun Item.toDto(): ItemDto = ItemDto(
+    id = this.id,
+    name = this.name,
+    price = this.price,
+    producerId = this.producerId?.toHexString(),
+)
