@@ -3,6 +3,11 @@ spring:
     mongodb:
       uri: mongodb://user123:pass123@localhost:27017/testdb?authSource=admin
 
+  jackson:
+    deserialization:
+      fail-on-missing-creator-properties: true
+
+
 #  kafka:
 #    bootstrap-servers: localhost:9092
 #    consumer:
