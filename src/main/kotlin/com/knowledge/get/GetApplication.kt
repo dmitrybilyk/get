@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
 
 @SpringBootApplication
-@ComponentScan(basePackages = [
-	"com.proper.classes",
-	"com.knowledge.get",
-	"com.proper.classes.repository"])
+//@ComponentScan(basePackages = [
+//	"com.proper.classes",
+//	"com.knowledge.get",
+//	"com.proper.classes.repository"])
 @Import(RSocketClientConfig::class)
 class GetApplication
 

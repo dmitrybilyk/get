@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import javax.validation.constraints.NotBlank
 
 @Document("producers")
-data class Producer(
+public data class Producer(
     @Id val id: String? = null,
     @field:NotBlank val name: String,
     @field:NotBlank val country: String,

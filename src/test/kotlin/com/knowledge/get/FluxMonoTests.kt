@@ -120,7 +120,7 @@ class FluxMonoTests {
                 }
             }            }
 
-        sleep(Duration.ofSeconds(1))
+        sleep(1000)
 
 //        StepVerifier.create(result)
 //            .expectNext("Two")
