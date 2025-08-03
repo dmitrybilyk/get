@@ -1,6 +1,7 @@
 package com.proper.classes.controller;
 
 import com.proper.classes.model.Human;
+import com.proper.classes.provider.InformationProvider;
 import com.proper.classes.service.api.HumanService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -26,13 +27,14 @@ public class HumanController {
         return humanService.createHuman(human);
     }
 
-    @GetMapping("/{id}/activity-cost")
-    public Mono<Double> getTotalActivityCost(@PathVariable String id) {
-        return humanService.calculateTotalActivityCost(id);
-    }
-
     @PatchMapping("/{humanId}/activities/{activityId}")
     public Mono<Human> addActivityToHuman(@PathVariable String humanId, @PathVariable String activityId) {
         return humanService.addActivityToHuman(humanId, activityId);
+    }
+
+    @GetMapping("/info")
+    public String getInformation() {
+        InformationProvider informationProvider = InformationProvider.getInstance();
+        return informationProvider.getName();
     }
 }

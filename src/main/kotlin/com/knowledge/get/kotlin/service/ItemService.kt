@@ -2,15 +2,17 @@ package com.knowledge.get.kotlin.service
 
 import com.knowledge.get.kotlin.exception.ItemNotFoundException
 import com.knowledge.get.kotlin.exception.NonPositivePriceException
-//import com.knowledge.get.kotlin.kafka.ItemKafkaProducer
 import com.knowledge.get.kotlin.model.Item
 import com.knowledge.get.kotlin.model.ItemWithProducer
+import com.knowledge.get.kotlin.model.ProducerItemCount
 import com.knowledge.get.kotlin.repository.ItemRepository
 import org.bson.types.ObjectId
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
+import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Service
@@ -20,16 +22,16 @@ import java.time.Duration
 
 @Service
 class ItemService(
-    private val repository: ItemRepository,
+    private val itemRepository: ItemRepository,
     private val enrichItemService: EnrichItemService,
     private val mongoTemplate: ReactiveMongoTemplate,
     private val producerService: ProducerService
 //    private val kafkaProducer: ItemKafkaProducer
 ) {
 
-    fun findAll(): Flux<Item> = repository.findAll()
+    fun findAll(): Flux<Item> = itemRepository.findAll()
 
-    fun findById(id: String): Mono<Item> = repository.findById(id)
+    fun findById(id: String): Mono<Item> = itemRepository.findById(id)
         .switchIfEmpty(Mono.error(ItemNotFoundException("Item with id $id not found")))
 
     fun findByPriceRange(from: Double, to: Double, page: Int): Flux<Item> {
@@ -38,14 +40,14 @@ class ItemService(
             .switchIfEmpty(Mono.error(IllegalArgumentException("minPrice must be less than or equal to maxPrice")))
             .flatMapMany {
                 val pageable = PageRequest.of(page, 3)
-                repository.findByPriceRange(from, to, pageable)
+                itemRepository.findByPriceRange(from, to, pageable)
             }
             .doOnNext { println("found: $it") }
             .doOnError { println("error: $it") }
     }
 
     fun findByManufacturer(name: String): Flux<Item> {
-        return repository.findByManufacturerName(name)
+        return itemRepository.findByManufacturerName(name)
     }
 
     fun findItemWithProducerById(id: String): Mono<ItemWithProducer> {
@@ -65,7 +67,7 @@ class ItemService(
             Aggregation.skip(skip),
             Aggregation.limit(limit),
             Aggregation.lookup("producers", "producerId", "_id", "producer"),
-            Aggregation.unwind("producer")
+            Aggregation.unwind("producer", true)
         )
         val collectList = mongoTemplate.aggregate(aggregation, "items", ItemWithProducer::class.java)
             .collectList()
@@ -76,9 +78,57 @@ class ItemService(
         }
     }
 
+    fun findWithAggregation(page: Int, size: Int): Mono<PageImpl<ItemWithProducer>> {
+        val skip = page.toLong() * size.toLong()
+        val limit = size.toLong()
+        val criteria = Criteria.where("price").gt(30).lte(2000)
+        val query = Query(criteria)
+        val aggregation = Aggregation.newAggregation(
+            Aggregation.match(criteria),
+            Aggregation.skip(skip),
+            Aggregation.limit(limit),
+            Aggregation.addFields()
+                .addFieldWithValue(
+                    "discountedPrice",
+                    ArithmeticOperators.valueOf("price").multiplyBy(0.1)
+                ).build()
+        )
+        val collectList = mongoTemplate.aggregate(aggregation, "items", ItemWithProducer::class.java)
+            .collectList()
+        val count = mongoTemplate.count(query, "items")
+
+        return Mono.zip(collectList, count).map { tuple ->
+            PageImpl(tuple.t1, PageRequest.of(page, size), tuple.t2)
+        }
+    }
+
+    fun getProducerItemCount(page: Int, size: Int): Mono<PageImpl<ProducerItemCount>> {
+        val skip = page.toLong() * size.toLong()
+        val limit = size.toLong()
+        val criteria = Criteria.where("price").gt(30).lte(2000)
+        val query = Query(criteria)
+        val aggregation = Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("producerId").ne(null)),
+            Aggregation.group("producerId")
+                .count().`as`("itemCount")
+                .avg("price").`as`("avgPrice"),
+            Aggregation.sort(Sort.by(Sort.Direction.ASC, "avgPrice")),
+            Aggregation.skip(skip),
+            Aggregation.limit(limit),
+        )
+        val collectList = mongoTemplate.aggregate(aggregation, "items", ProducerItemCount::class.java)
+            .collectList()
+        val count = mongoTemplate.count(query, "items")
+
+        return Mono.zip(collectList, count).map { tuple ->
+            PageImpl(tuple.t1, PageRequest.of(page, size), tuple.t2)
+        }
+    }
+
     fun save(item: Item): Mono<Item> {
-        return validateProducerExists(item.producerId!!)
-            .then(Mono.just(item))
+//        return validateProducerExists(item.producerId!!)
+//            .then(Mono.just(item))
+        return Mono.just(item)
             .flatMap(::validatePrice)
             .map(::normalizeItem)
             .flatMap(::enrichItem)
@@ -130,6 +180,15 @@ class ItemService(
             return Mono.error(RuntimeException("Simulated DB failure"))
         }
 
-        return repository.save(item)
+        return itemRepository.save(item)
+    }
+
+    fun updateItem(id: String, item: Item): Mono<Item> {
+        return itemRepository.findById(id)
+            .flatMap { itemRepository.save(item) }
+    }
+
+    fun deleteById(id: String): Mono<Void> {
+        return itemRepository.deleteById(id)
     }
 }

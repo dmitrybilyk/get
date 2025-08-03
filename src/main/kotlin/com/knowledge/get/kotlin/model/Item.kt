@@ -11,7 +11,7 @@ data class Item (
     val id: String? = null,
     @field:NotNull @field:NotBlank val name: String? = null,
     @field:NotNull @field:Positive val price: Double,
-    @field:NotNull val producerId: ObjectId? = null,
+    val producerId: ObjectId? = null,
     val embeddedManufacturer: EmbeddedManufacturer? = null
 )
 

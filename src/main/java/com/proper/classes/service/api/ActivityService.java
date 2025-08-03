@@ -6,5 +6,8 @@ import reactor.core.publisher.Mono;
 
 public interface ActivityService {
     Flux<Activity> getAllActivities();
+
     Mono<Activity> createActivity(Activity activity);
+
+    Mono<Double> calculateTotalActivityCost(String id);
 }

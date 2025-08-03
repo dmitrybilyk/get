@@ -25,4 +25,9 @@ public class ActivityController {
     public Mono<Activity> createActivity(@RequestBody Activity activity) {
         return activityService.createActivity(activity);
     }
+
+    @GetMapping("/{id}/activity-cost")
+    public Mono<Double> getTotalActivityCost(@PathVariable String id) {
+        return activityService.calculateTotalActivityCost(id);
+    }
 }

@@ -4,7 +4,7 @@ import com.proper.classes.model.Human;
 import com.proper.classes.repository.ActivityRepository;
 import com.proper.classes.repository.HumanRepository;
 import com.proper.classes.service.api.HumanService;
-import com.proper.classes.service.external.ActivityCostClient;
+import com.proper.classes.service.external.api.ActivityCostService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,12 +17,14 @@ public class HumanServiceImpl implements HumanService {
 
     private final HumanRepository humanRepo;
     private final ActivityRepository activityRepo;
-    private final ActivityCostClient costClient;
+    private final ActivityCostService activityCostService;
 
-    public HumanServiceImpl(HumanRepository humanRepo, ActivityRepository activityRepo, ActivityCostClient costClient) {
+    public HumanServiceImpl(HumanRepository humanRepo,
+                            ActivityRepository activityRepo,
+                            ActivityCostService activityCostService) {
         this.humanRepo = humanRepo;
         this.activityRepo = activityRepo;
-        this.costClient = costClient;
+        this.activityCostService = activityCostService;
     }
 
     @Override
@@ -40,7 +42,9 @@ public class HumanServiceImpl implements HumanService {
         return humanRepo.findById(humanId)
                 .flatMapMany(h -> Flux.fromIterable(h.activityIds()))
                 .flatMap(activityRepo::findById)
-                .flatMap(activity -> costClient.getActivityCost(activity.name(), humanRepo.findById(humanId).block().age()))
+                .flatMap(activity ->
+                        activityCostService.getActivityCost(
+                                activity.name()))
                 .reduce(0.0, Double::sum);
     }
 

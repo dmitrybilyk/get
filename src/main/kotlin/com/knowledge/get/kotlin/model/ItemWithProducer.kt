@@ -4,5 +4,7 @@ data class ItemWithProducer(
     val id: String?,
     val name: String,
     val price: Double,
-    val producer: Producer
+    val discountedPrice: Double?,
+    val producer: Producer?,
+    val embeddedManufacturer: EmbeddedManufacturer?
 )

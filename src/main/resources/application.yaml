@@ -13,6 +13,8 @@ spring:
     deserialization:
       fail-on-missing-creator-properties: true
 
+activity:
+  cost: probono
 
 #  kafka:
 #    bootstrap-servers: localhost:9092
