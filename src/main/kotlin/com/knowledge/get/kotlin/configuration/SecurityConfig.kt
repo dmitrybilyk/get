@@ -25,10 +25,11 @@ class SecurityConfig {
         return http
             .csrf { it.disable() }
             .authorizeExchange {
-                it.pathMatchers("/items/learn-group**").permitAll() // Allow anonymous access
-                it.pathMatchers("/items").authenticated() // Require authentication for /items?page=2&size=10
-                it.pathMatchers("/items/**").hasRole("USER") // Require USER role for /items/{id}
-                it.anyExchange().authenticated() // Default: require authentication
+//                it.pathMatchers("/items/learn-group**").permitAll() // Allow anonymous access
+//                it.pathMatchers("/items").authenticated() // Require authentication for /items?page=2&size=10
+//                it.pathMatchers("/items/**").hasRole("USER") // Require USER role for /items/{id}
+//                it.anyExchange().authenticated() // Default: require authentication
+                it.anyExchange().permitAll() // Default: require authentication
             }
             .httpBasic(Customizer.withDefaults())
             .build()
