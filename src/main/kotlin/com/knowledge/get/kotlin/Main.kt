@@ -129,45 +129,195 @@ fun main() {
 
 //    useItems(items)
 
-    val namesMap = mutableMapOf("Dmytro2" to 44, "Ruslan" to 47)
-    namesMap.getOrPut("Dmytro") {
-        55
+//    val namesMap = mutableMapOf("Dmytro2" to 44, "Ruslan" to 47)
+//    namesMap.getOrPut("Dmytro") {
+//        55
+//    }
+//
+//    val value = namesMap.let {
+//        println(it["Dmytro2"])
+//        it["Dmytro55"] = 155
+//        "dfdf"
+//    }
+//    println(namesMap["Dmytro55"])
+//    println(value)
+//
+//    val itemParent = Item("name", 33.4, Status.SECOND)
+//    itemParent.apply {
+//        name = "new name"
+//    }
+//
+//    println(itemParent)
+//
+//    itemParent.also {
+//        println(it)
+//        it.name = "new name2"
+//    }
+//
+//    println(itemParent)
+//
+//    println(itemParent.run {
+//        name = "new name3"
+//        true
+//    })
+//
+//    println(itemParent)
+
+//    val upperCaseString = {  str: String -> str.uppercase() }
+//    val list = listOf("dddd")
+//    println(list.map { upperCaseString(it) })
+//
+//    println( { text: String -> text.uppercase() }("hello"))
+//
+//    val actions = listOf("title", "year", "author")
+//    val prefix = "https://example.com/book-info"
+//    val id = 5
+////    val urls = // Write your code here
+////        println(urls)
+//
+//    val la = { action: String -> "$prefix/$id/$action" }
+//
+//    val urls = actions.map(la)
+//    println(urls)
+//
+//    repeatN(3) { println("something") }
+
+//    val people = listOf(
+//        Person("Alice", 30),
+//        Person("Bob", 17),
+//        Person("Charlie", 25),
+//        Person("Diana", 15)
+//    )
+//
+//    val ageFilter = { person: Person -> person.age!! > 20 }
+//    val toUppercase = { person: Person -> person.name!!.uppercase() }
+//    val toSort = { a: String, b: String  -> a.length - b.length }
+//    val greetPerson = { person: Person -> "Hello, ${person.name}" }
+//
+//    val findTeenagers = { person: Person -> person.age!! < 18}
+//
+//    val addGroup = { person: Person ->
+//        when {
+//            person.age!! < 18 -> "Teenagers"
+//            person.age!! < 60 -> "Adult"
+//            else -> "Senior"
+//        }
+//    }
+//
+//    val startWithA = { person: Person -> person.name?.first() == 'A'}
+//
+//    people
+//        .filter(startWithA)
+//        .map(greetPerson)
+//        .forEach { println(it) }
+//
+//    println(
+//        transformPeople(
+//            people,
+//            ageFilter,
+//            toUppercase,
+//            toSort,
+//            startWithA
+//        )
+//    )
+//
+//    println(50.isPositive())
+//
+//    getString(true).let {
+//        println()
+//        println("not null - $it")
+//        it == null
+//    }
+//
+//    val person = Person().apply {
+//        name = "New Name"
+//        age = 55
+//    }
+//
+//    val name: String? = null
+//
+//    val upperName = name?.let {
+//        println("Uppercasing: $it")
+//        it.uppercase() + "ddddddddd"
+//    }
+//
+//    println(upperName)
+//
+//    getString(false).apply {
+//        println(this)
+//    }
+    val product = Product()
+    val priceInEuros = product.getPriceInEuros()
+
+    if (priceInEuros != null) {
+        println("Price in Euros: €$priceInEuros")
+        // Price in Euros: €85.0
+    } else {
+        println("Price information is not available.")
     }
-
-    val value = namesMap.let {
-        println(it["Dmytro2"])
-        it["Dmytro55"] = 155
-        "dfdf"
-    }
-    println(namesMap["Dmytro55"])
-    println(value)
-
-    val itemParent = Item("name", 33.4, Status.SECOND)
-    itemParent.apply {
-        name = "new name"
-    }
-
-    println(itemParent)
-
-    itemParent.also {
-        println(it)
-        it.name = "new name2"
-    }
-
-    println(itemParent)
-
-    println(itemParent.run {
-        name = "new name3"
-        true
-    })
-
-    println(itemParent)
 
 }
 
+class MenuItem(val name: String)
+
+class Menu(val name: String) {
+    val items = mutableListOf<MenuItem>()
+
+    fun item(name: String) {
+        items.add(MenuItem(name))
+    }
+}
+
+data class ProductInfo(val priceInDollars: Double?)
+
+class Product {
+    fun getProductInfo(): ProductInfo? {
+        return ProductInfo(100.0)
+    }
+}
+
+// Rewrite this function
+fun Product.getPriceInEuros(): Double? {
+    return getProductInfo()?.priceInDollars?.let {
+        convertToEuros(it)
+    }
+}
+
+fun convertToEuros(dollars: Double): Double {
+    return dollars * 0.85
+}
+
+
+fun getString(toReturnNull: Boolean): String? {
+    return if (toReturnNull) null else "Result"
+}
+
+fun Int.isPositive(): Boolean = this > 0
+
+fun transformPeople(people: List<Person>,
+                    filter: (Person) -> Boolean,
+                    transform: (Person) -> String,
+                    sort: (String, String) -> Int,
+                    startsWithA: (Person) -> Boolean
+): List<String> {
+    return people
+        .filter(startsWithA)
+        .map(transform)
+        .sortedWith(Comparator(sort))
+}
+
+fun repeatN(n: Int, action: () -> Unit ) {
+    for (i in 1..n) {
+        action()
+    }
+}
 open class ItemParent {
     var parentProperty: String = ""
 }
+
+
+data class Person(var name: String? = null, var age: Int? = 0)
+
 
 data class Item(var name: String, var price: Double, var status: Status) : ItemParent()
 
