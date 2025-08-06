@@ -135,6 +135,7 @@ class ItemService(
             .flatMap(::enrichItem)
             .flatMap(::persistItem)
             .doOnNext{ kafkaProducer.send("item-topic", item) }
+            .doOnNext{ kafkaProducer.sendList("items-topic", listOf(item)) }
             .doOnSubscribe { println("Subscribed to save()") }
             .doOnSuccess { println("Saved successfully: $it") }
     }

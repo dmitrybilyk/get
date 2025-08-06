@@ -14,4 +14,9 @@ class ItemKafkaProducer(
         println(json)
         kafkaTemplate.send(topic, json)
     }
+    fun sendList(topic: String, item: Any) {
+        val json = objectMapper.writeValueAsString(item)
+        println(json)
+        kafkaTemplate.send(topic, json)
+    }
 }
