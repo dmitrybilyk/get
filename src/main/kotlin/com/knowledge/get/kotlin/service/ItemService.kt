@@ -2,6 +2,7 @@ package com.knowledge.get.kotlin.service
 
 import com.knowledge.get.kotlin.exception.ItemNotFoundException
 import com.knowledge.get.kotlin.exception.NonPositivePriceException
+import com.knowledge.get.kotlin.kafka.ItemKafkaProducer
 import com.knowledge.get.kotlin.model.Item
 import com.knowledge.get.kotlin.model.ItemWithProducer
 import com.knowledge.get.kotlin.model.ProducerItemCount
@@ -25,8 +26,8 @@ class ItemService(
     private val itemRepository: ItemRepository,
     private val enrichItemService: EnrichItemService,
     private val mongoTemplate: ReactiveMongoTemplate,
-    private val producerService: ProducerService
-//    private val kafkaProducer: ItemKafkaProducer
+    private val producerService: ProducerService,
+    private val kafkaProducer: ItemKafkaProducer
 ) {
 
     fun findAll(): Flux<Item> = itemRepository.findAll()
@@ -133,6 +134,7 @@ class ItemService(
             .map(::normalizeItem)
             .flatMap(::enrichItem)
             .flatMap(::persistItem)
+            .doOnNext{ kafkaProducer.send("item-topic", item) }
             .doOnSubscribe { println("Subscribed to save()") }
             .doOnSuccess { println("Saved successfully: $it") }
     }
