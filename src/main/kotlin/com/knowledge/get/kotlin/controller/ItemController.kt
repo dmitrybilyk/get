@@ -47,6 +47,10 @@ class ItemController(
         itemService.findAllItemsWithProducers(page, size)
             .map { ResponseEntity.ok(ApiResponse.Success(it)) }
 
+    @GetMapping("/plain")
+    fun getPlainItems(): Flux<Item> =
+        itemService.findPlainItems()
+
     @GetMapping("/learn-aggregation")
     fun getAllItemsByFilter(
         @RequestParam(defaultValue = "0") page: Int,

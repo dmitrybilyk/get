@@ -79,6 +79,11 @@ class ItemService(
         }
     }
 
+    fun findPlainItems(): Flux<Item> {
+        return itemRepository.findAll()
+            .take(10)
+    }
+
     fun findWithAggregation(page: Int, size: Int): Mono<PageImpl<ItemWithProducer>> {
         val skip = page.toLong() * size.toLong()
         val limit = size.toLong()
