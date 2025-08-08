@@ -112,12 +112,144 @@ public class JavaMain {
 //        spentByCustomer.forEach((customer, total) ->
 //                System.out.println(customer + " spent: $" + total));
 
-        Map<String, List<Order>> ordersByCustomer = orders.stream()
-                .collect(Collectors.groupingBy(order -> order.customer()));
+//        Map<String, List<Order>> ordersByCustomer = orders.stream()
+//                .collect(Collectors.groupingBy(Order::customer));
 
-        System.out.println(ordersByCustomer);
+//        Map<String, List<String>> collect = orders.stream()
+//                .collect(Collectors.groupingBy(Order::customer,
+//                        Collectors.flatMapping(order -> order.products().stream()
+//                                        .map(Product::name),
+//                                Collectors.toList())));
 
+//        Map<String, Long> collect = orders.stream()
+//                .collect(Collectors.groupingBy(Order::customer,
+//                        Collectors.flatMapping(order -> order.products().stream(), Collectors.counting())));
+//        Map<String, Integer> collect = orders.stream()
+//                .collect(Collectors.groupingBy(Order::customer,
+//                        Collectors.summingInt(order -> order.products().size())));
+
+//        List<Product> collect = orders.stream()
+//                .flatMap(order -> order.products().stream())
+//                .toList();
+
+//
+//        System.out.println(orders.stream()
+//                        .flatMap(order -> order.products().stream()
+//                                .map(product -> Map.entry(order.customer(), product)))
+//                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.counting())));
+
+//        group products by customer name
+
+//        Map<String, List<Product>> collect = orders.stream()
+//                .collect(Collectors.groupingBy(Order::customer,
+//                        Collectors.flatMapping(order -> order.products().stream(),
+//                                Collectors.toList())));
+
+//        Task: Find the most expensive product each customer has ordered
+
+        Map<String, Optional<Product>> mostExpensiveProductByCustomer = orders.stream()
+                .flatMap(order -> order.products().stream()
+                        .map(product -> Map.entry(order.customer(), product)))
+                .collect(Collectors.groupingBy(
+                        stringProductEntry -> {
+                            return stringProductEntry.getKey();
+                        },
+                        Collectors.mapping(
+                                stringProductEntry1 -> {
+                                    return stringProductEntry1.getValue();
+                                },
+                                Collectors.maxBy(Comparator.comparingDouble(Product::price))
+                        )
+                ));
+
+//
+//        orders.stream()
+//                .flatMap(order -> order.products().stream()
+//                        .map(product -> Map.entry(order.customer(), product)))
+//                .collect(Collectors.groupingBy(
+//                        Map.Entry::getKey,
+//                        Collectors.mapping(
+//                                Map.Entry::getValue,
+//                                Collectors.maxBy(Comparator.comparingDouble(Product::price)))
+//                ))
+//                .forEach((s, product) -> {
+//                    product.ifPresent(product1 ->
+//                            System.out.println("Customer - " + s + " : " + product1.price()));
+//
+//                });
+
+//        Task: Find the first product each customer has ever ordered
+
+//        Map<String, List<Product>> collect = orders.stream()
+//                .filter(order -> !order.products().isEmpty())
+//                .collect(Collectors.toMap(Order::customer,
+//                        Order::products,
+//                        (o, o2) -> o
+//                ));
+
+//        orders.stream()
+//                        .collect(Collectors.groupingBy(order -> order.customer()));
+
+//        Map<String, List<Product>> collect = orders.stream()
+//                .flatMap(order -> order.products().stream())
+//                .collect(Collectors.groupingBy(product -> product.name()));
+//
+//        System.out.println(orders.stream()
+//                        .flatMap(order -> order.products().stream())
+//                                .collect(Collectors.groupingBy(Product::name)));
+
+//        orders.stream()
+//                .flatMap(order -> order.products().stream()).distinct().count();
+
+//        group students by language
+
+        List<Student> studentList = Arrays.asList(
+                new Student("Doug Lea", Arrays.asList("Java", "C#", "JavaScript")),
+                new Student("Bjarne Stroustrup", Arrays.asList("C", "C++", "Java")),
+                new Student("Martin Odersky", Arrays.asList("Java", "Scala", "Smalltalk"))
+        );
+//        studentList.forEach(System.out::println);
+
+        Map<String, List<String>> collect = studentList.stream()
+                .flatMap(student -> student.languages.stream()
+                        .map(language -> Map.entry(language, student.name)))
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue,
+                                Collectors.toList())));
+
+        System.out.println(collect);
     }
+
+    static class Student {
+        private String name;
+        private List<String> languages;
+
+        Student(String name, List<String> languages) {
+            this.name = name;
+            this.languages = languages;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<String> getLanguages() {
+            return languages;
+        }
+
+        @Override
+        public String toString() {
+            return this.name + this.languages;
+        }
+    }
+
+//    // Data example
+//    static final List<Student> students = Arrays.asList(
+//            new Student("Doug Lea", Arrays.asList("Java", "C#", "JavaScript")),
+//            new Student("Bjarne Stroustrup", Arrays.asList("C", "C++", "Java")),
+//            new Student("Martin Odersky", Arrays.asList("Java", "Scala", "Smalltalk"))
+//    );
+
 }
 
 record Product(String name, double price) {}
