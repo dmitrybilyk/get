@@ -139,10 +139,18 @@ class ItemService(
             .map(::normalizeItem)
             .flatMap(::enrichItem)
             .flatMap(::persistItem)
-            .doOnNext{ kafkaProducer.send("item-topic", item) }
-            .doOnNext{ kafkaProducer.sendList("items-topic", listOf(item)) }
-            .doOnSubscribe { println("Subscribed to save()") }
-            .doOnSuccess { println("Saved successfully: $it") }
+            .doOnNext{
+                kafkaProducer.send("item-topic", it)
+            }
+            .doOnNext{
+                kafkaProducer.sendList("items-topic", listOf(it))
+            }
+            .doOnSubscribe {
+                println("Subscribed to save()")
+            }
+            .doOnSuccess {
+                println("Saved successfully: $it")
+            }
     }
 
     private fun validatePrice(item: Item): Mono<Item> {

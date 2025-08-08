@@ -43,11 +43,11 @@ fun main() {
 //    getItem("6894b6b27da0fd2d371456dd")
 //        .subscribe { println(it) }
 
-    getAllItems()
-        .subscribe { println(it) }
-
-//    createItem(Item(null, "ENRICH_FAIL", 40.0))
+//    getAllItems()
 //        .subscribe { println(it) }
+
+    createItem(Item(null, "Dmytros Item", 40.0))
+        .subscribe { println(it) }
 
     sleep(3000)
 }
