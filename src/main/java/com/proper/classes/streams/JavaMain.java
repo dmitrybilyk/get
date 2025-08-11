@@ -2,9 +2,15 @@ package com.proper.classes.streams;
 
 import org.apache.logging.log4j.util.PropertySource;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.util.Pair;
+import reactor.util.function.Tuple2;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -147,20 +153,14 @@ public class JavaMain {
 
 //        Task: Find the most expensive product each customer has ordered
 
-        Map<String, Optional<Product>> mostExpensiveProductByCustomer = orders.stream()
-                .flatMap(order -> order.products().stream()
-                        .map(product -> Map.entry(order.customer(), product)))
-                .collect(Collectors.groupingBy(
-                        stringProductEntry -> {
-                            return stringProductEntry.getKey();
-                        },
-                        Collectors.mapping(
-                                stringProductEntry1 -> {
-                                    return stringProductEntry1.getValue();
-                                },
-                                Collectors.maxBy(Comparator.comparingDouble(Product::price))
-                        )
-                ));
+//        Map<String, List<Double>> pricesByCustomer = orders.stream()
+//                .flatMap(order -> order.products().stream()
+//                        .map(product -> Pair.of(order.customer(), product)))
+//                .collect(Collectors.groupingBy(
+//                        Pair::getFirst,
+//                        Collectors.mapping(
+//                                customerAndProduct -> customerAndProduct.getSecond().price(),
+//                                Collectors.toList())));
 
 //
 //        orders.stream()
@@ -203,19 +203,47 @@ public class JavaMain {
 
 //        group students by language
 
-        List<Student> studentList = Arrays.asList(
-                new Student("Doug Lea", Arrays.asList("Java", "C#", "JavaScript")),
-                new Student("Bjarne Stroustrup", Arrays.asList("C", "C++", "Java")),
-                new Student("Martin Odersky", Arrays.asList("Java", "Scala", "Smalltalk"))
-        );
-//        studentList.forEach(System.out::println);
+//        List<Student> studentList = Arrays.asList(
+//                new Student("Doug Lea", Arrays.asList("Java", "C#", "JavaScript")),
+//                new Student("Bjarne Stroustrup", Arrays.asList("C", "C++", "Java")),
+//                new Student("Martin Odersky", Arrays.asList("Java", "Scala", "Smalltalk"))
+//        );
+////        studentList.forEach(System.out::println);
+//
+//        Map<String, List<String>> collect = studentList.stream()
+//                .flatMap(student -> student.languages.stream()
+//                        .map(language -> Map.entry(language, student.name)))
+//                .collect(Collectors.groupingBy(Map.Entry::getKey,
+//                        Collectors.mapping(Map.Entry::getValue,
+//                                Collectors.toList())));
+//
+//        System.out.println(collect);
 
-        Map<String, List<String>> collect = studentList.stream()
-                .flatMap(student -> student.languages.stream()
-                        .map(language -> Map.entry(language, student.name)))
-                .collect(Collectors.groupingBy(Map.Entry::getKey,
-                        Collectors.mapping(Map.Entry::getValue,
-                                Collectors.toList())));
+//        List<String> list = List.of("First", "Second", "Third");
+//        list.stream()
+//                .peek(System.out::println)
+//                .toList()
+//                .forEach(System.out::println);
+
+        List<String> givenList = Arrays.asList("a", "a", "bb", "ccc", "dd");
+        List<Student> givenListOfStudents = Arrays.asList(
+                new Student("ddd", List.of("java")),
+                new Student("ddd3", List.of("java", "c", "python")),
+                new Student("ddd2", List.of("java17", "c++")));
+
+//        Map<String, String> collect = givenList.stream()
+//                .collect(Collectors.toUnmodifiableMap(Function.identity(), Function.identity(), (o, o2) -> o));
+//        System.out.println(collect);
+//
+//        Optional<String> collect = givenList.stream()
+//                .collect(Collectors.maxBy(Comparator.comparingLong(String::length)));
+
+//        Map<String, Integer> collect = givenListOfStudents.stream()
+//                .collect(Collectors.groupingBy(Student::getName,
+//                        Collectors.summingInt(value -> value.languages.size())));
+
+        Map<Boolean, List<Student>> collect = givenListOfStudents.stream()
+                .collect(Collectors.partitioningBy(student -> student.languages.size() > 1));
 
         System.out.println(collect);
     }
@@ -249,6 +277,48 @@ public class JavaMain {
 //            new Student("Bjarne Stroustrup", Arrays.asList("C", "C++", "Java")),
 //            new Student("Martin Odersky", Arrays.asList("Java", "Scala", "Smalltalk"))
 //    );
+
+
+
+    static class CommaJoinCollector implements Collector<String, StringBuilder, String> {
+
+        @Override
+        public Supplier<StringBuilder> supplier() {
+            // Creates the initial container
+            return () -> new StringBuilder();
+        }
+
+        @Override
+        public BiConsumer<StringBuilder, String> accumulator() {
+            // How to add a single element into the container
+            return (sb, str) -> {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(str);
+            };
+        }
+
+        @Override
+        public BinaryOperator<StringBuilder> combiner() {
+            // How to merge two containers (parallel streams)
+            return (sb1, sb2) -> {
+                if (sb1.length() > 0 && sb2.length() > 0) sb1.append(", ");
+                sb1.append(sb2);
+                return sb1;
+            };
+        }
+
+        @Override
+        public Function<StringBuilder, String> finisher() {
+            // Converts the container into the final result
+            return stringBuilder -> stringBuilder.toString();
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            // No special optimizations here
+            return Collections.emptySet();
+        }
+    }
 
 }
 
