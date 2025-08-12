@@ -1,6 +1,7 @@
 package com.knowledge.get.kotlin
 
 import java.util.*
+import java.util.function.Supplier
 import java.util.stream.*
 
 fun main() {
@@ -72,16 +73,58 @@ fun main() {
         Book("Book E", "Author X", 2020, 4.1, listOf("Drama", "Adventure"))
     )
 
-    val toList = books.stream()
-        .flatMap { book -> book.genres.stream()
-            .map { genre -> AbstractMap.SimpleEntry(genre.lowercase(), book.rating) } }
-        .collect(Collectors.groupingBy (
-            { it.key},
-            Collectors.averagingDouble { it.value }
-        ))
-        .toSortedMap()
+//    val toList = books.stream()
+//        .flatMap { book -> book.genres.stream()
+//            .map { genre -> AbstractMap.SimpleEntry(genre.lowercase(), book.rating) } }
+//        .collect(Collectors.groupingBy (
+//            { it.key },
+//            Collectors.averagingDouble { it.value }
+//        ))
+//        .toSortedMap()
 
-    println(toList)
+//    val collect = books.stream()
+//        .sorted(Comparator.comparingDouble<Book?> { it.rating }.reversed())
+//        .collect(Collectors.groupingBy({ it.author }, Collectors.mapping({ it.title }, Collectors.toList())))
+
+//    val collect = books.stream()
+//        .collect(
+//            Collectors.groupingBy(
+//                { it.author },
+//                { TreeMap() },
+//                Collectors.mapping({
+//                    it.title
+//                },
+//                    Collectors.toCollection {
+//                        TreeSet()
+//                    }
+//                )
+//            ))
+
+//    val collect = books.stream()
+//        .collect(
+//            Collectors.groupingBy(
+//                { it.author },
+//                Collectors.flatMapping(
+//                    { it.genres.stream() },
+//                    Collectors.toSet()
+//                )
+//            )
+//        )
+
+//    val collect = books.stream()
+//        .collect(Collectors.groupingBy(
+//            { it.year > 2010 },
+//            Collectors.collectingAndThen(
+//                Collectors.flatMapping(
+//                    { it.genres.stream() },
+//                    Collectors.toCollection { TreeSet(String.CASE_INSENSITIVE_ORDER) }
+//                ),
+//                { it.joinToString(", ") }
+//            )
+//        ))
+
+
+//    println(collect)
 //
 //    books.stream()
 //        .filter { it.year > 2000 && it.rating > 4 }
