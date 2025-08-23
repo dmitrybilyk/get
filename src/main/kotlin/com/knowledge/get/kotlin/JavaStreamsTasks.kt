@@ -65,13 +65,13 @@ fun main() {
 //        .toSortedMap(Comparator.comparing { it.lowercase() })
 //        .forEach { println(it) }
 
-    val books = listOf(
-        Book("Book A", "Author X", 2001, 4.5, listOf("Fantasy", "Adventure")),
-        Book("Book B", "Author Y", 1999, 4.2, listOf("Horror")),
-        Book("Book C", "Author X", 2005, 3.9, listOf("Fantasy", "Drama")),
-        Book("Book D", "Author Z", 2010, 4.8, listOf("Adventure")),
-        Book("Book E", "Author X", 2020, 4.1, listOf("Drama", "Adventure"))
-    )
+//    val books = listOf(
+//        Book("Book A", "Author X", 2001, 4.5, listOf("Fantasy", "Adventure")),
+//        Book("Book B", "Author Y", 1999, 4.2, listOf("Horror")),
+//        Book("Book C", "Author X", 2005, 3.9, listOf("Fantasy", "Drama")),
+//        Book("Book D", "Author Z", 2010, 4.8, listOf("Adventure")),
+//        Book("Book E", "Author X", 2020, 4.1, listOf("Drama", "Adventure"))
+//    )
 
 //    val toList = books.stream()
 //        .flatMap { book -> book.genres.stream()
@@ -142,12 +142,12 @@ fun main() {
 
 }
 
-data class Book(
-    val title: String,
-    val author: String,
-    val year: Int,
-    val rating: Double,
-    val genres: List<String>
-)
+//data class Book(
+//    val title: String,
+//    val author: String,
+//    val year: Int,
+//    val rating: Double,
+//    val genres: List<String>
+//)
 
 
