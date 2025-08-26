@@ -1,8 +1,7 @@
-package knowyourproject
+package knowyourproject.fluxsink
 
 import reactor.core.publisher.Flux
 import reactor.core.publisher.FluxSink
-import java.time.Duration
 
 class FluxSinkPlayground {
 
