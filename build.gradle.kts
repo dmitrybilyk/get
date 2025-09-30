@@ -11,11 +11,11 @@ plugins {
 group = "com.knowledge"
 version = "0.0.1-SNAPSHOT"
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
-}
+//java {
+//	toolchain {
+//		languageVersion = JavaLanguageVersion.of(17)
+//	}
+//}
 
 repositories {
 	mavenCentral()
@@ -45,7 +45,7 @@ dependencies {
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("org.testcontainers:testcontainers:1.19.7")
-	testImplementation("org.testcontainers:junit-jupiter:1.19.7")
+	implementation("org.testcontainers:junit-jupiter:1.19.7")
 	testImplementation("org.mockito:mockito-inline:5.2.0")
 
 	// Optional - use specific containers depending on what you test

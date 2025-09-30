@@ -20,6 +20,16 @@ class PersonService(private val repo: PersonRepository,
 
 //    fun getAll(): Flux<Person> = repo.findAll()
     fun getAll(): Flux<Person> = personDao.getAll()
+    .doOnComplete { println("done") } // side-effect on completion
+    .doOnSubscribe { println("subscribe to people") }
+    .doOnNext { println("got: ${it.name} (${it.email})") }
+    .filter { it.age >= 18 }
+    .take(2)
+    .map { person -> Person(person.id, person.name + person.name, person.email) } // transform
+    .log()
+
+    fun getAllMono(): Mono<List<Person>> = personDao.getAll()
+        .collectList()
 
     fun getById(id: String): Mono<Person> = repo.findById(id)
 

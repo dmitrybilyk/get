@@ -11,7 +11,7 @@ abstract class GenericDao<T> (
         return doGetAll()
             .doFinally {
                 val duration = System.currentTimeMillis() - start
-                println("[${clazz.simpleName}] getAll took ${duration}ms")
+                println("[${clazz?.simpleName}] getAll took ${duration}ms")
             }
     }
 

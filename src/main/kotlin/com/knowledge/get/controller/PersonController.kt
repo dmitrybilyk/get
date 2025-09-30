@@ -17,6 +17,9 @@ class PersonController(private val personService: PersonService,
     @GetMapping
     fun all(): Flux<Person> = personService.getAll()
 
+    @GetMapping("/mono")
+    fun allMono(): Mono<List<Person>> = personService.getAllMono()
+
     @GetMapping("/{id}")
     fun one(@PathVariable id: String): Mono<ResponseEntity<Person>> =
         personService.getById(id)
