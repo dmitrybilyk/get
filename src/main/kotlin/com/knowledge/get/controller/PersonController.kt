@@ -15,6 +15,7 @@ class PersonController(private val personService: PersonService,
                        private val slowPersonService: SlowPersonService) {
 
     @GetMapping
+    @MaskFields(["email","name"])
     fun all(): Flux<Person> = personService.getAll()
 
     @GetMapping("/mono")

@@ -3,6 +3,7 @@ package com.knowledge.get.service
 import com.knowledge.get.dao.api.PersonDao
 import com.knowledge.get.dao.impl.PersonDaoMongoImpl
 import com.knowledge.get.model.Address
+import com.knowledge.get.model.Child
 import com.knowledge.get.model.Person
 import com.knowledge.get.repository.PersonRepository
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -25,7 +26,7 @@ class PersonService(private val repo: PersonRepository,
     .doOnNext { println("got: ${it.name} (${it.email})") }
     .filter { it.age >= 18 }
     .take(2)
-    .map { person -> Person(person.id, person.name + person.name, person.email) } // transform
+    .map { person -> Person(person.id, person.name + person.name, person.email, 50, Child()) } // transform
     .log()
 
     fun getAllMono(): Mono<List<Person>> = personDao.getAll()

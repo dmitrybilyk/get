@@ -8,6 +8,13 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Person(
     @Id val id: String? = null,
     var name: String = "",
+//    @field:JsonSerialize(using = MaskingSerializer::class)
     var email:  String = "",
-    var age: Int = 20
+//    @field:JsonSerialize(using = MaskingSerializer::class)
+    var age: Int = 20,
+
+    val child: Child?
+
 )
+
+data class Child(val name: String = "ddd")
