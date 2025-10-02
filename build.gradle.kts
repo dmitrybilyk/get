@@ -5,7 +5,7 @@ plugins {
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "2.7.5"
 	id("io.spring.dependency-management") version "1.1.7"
-	id("com.diffplug.spotless") version "6.21.0"
+//	id("com.diffplug.spotless") version "6.21.0"
 }
 
 group = "com.knowledge"
@@ -56,17 +56,17 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-spotless {
-	kotlin {
-		target("src/**/*.kt")
-		ktlint("0.48.2").userData(mapOf("indent_size" to "4"))
-	}
-	format("misk") {
-		target("*.gradle.kts", "*.md", ".gitignore")
-		trimTrailingWhitespace()
-		endWithNewline()
-	}
-}
+//spotless {
+//	kotlin {
+//		target("src/**/*.kt")
+//		ktlint("0.48.2").userData(mapOf("indent_size" to "4"))
+//	}
+//	format("misk") {
+//		target("*.gradle.kts", "*.md", ".gitignore")
+//		trimTrailingWhitespace()
+//		endWithNewline()
+//	}
+//}
 
 //tasks.register("printExtensions") {
 //	doLast {
