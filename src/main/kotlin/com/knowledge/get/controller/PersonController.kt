@@ -1,5 +1,6 @@
 package com.knowledge.get.controller
 
+import com.knowledge.get.controller.handler.Mask
 import com.knowledge.get.model.Person
 import com.knowledge.get.service.PersonService
 import com.knowledge.get.service.PersonWithAddresses
@@ -15,9 +16,11 @@ class PersonController(private val personService: PersonService,
                        private val slowPersonService: SlowPersonService) {
 
     @GetMapping
-    @MaskFields(["email","name"])
+//    @MaskFields(["email","name"])
+    @Mask(["resource","name"])
     fun all(): Flux<Person> = personService.getAll()
 
+    @Mask(["resource","name"])
     @GetMapping("/mono")
     fun allMono(): Mono<List<Person>> = personService.getAllMono()
 

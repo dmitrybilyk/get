@@ -26,7 +26,7 @@ class PersonService(private val repo: PersonRepository,
     .doOnNext { println("got: ${it.name} (${it.email})") }
     .filter { it.age >= 18 }
     .take(2)
-    .map { person -> Person(person.id, person.name + person.name, person.email, 50, Child()) } // transform
+    .map { person -> Person(person.id, person.name + person.name, person.email, "bbb",50, Child()) } // transform
     .log()
 
     fun getAllMono(): Mono<List<Person>> = personDao.getAll()

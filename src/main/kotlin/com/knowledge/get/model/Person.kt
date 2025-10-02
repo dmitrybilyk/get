@@ -10,11 +10,13 @@ data class Person(
     var name: String = "",
 //    @field:JsonSerialize(using = MaskingSerializer::class)
     var email:  String = "",
+    var resource: String = "some resource",
 //    @field:JsonSerialize(using = MaskingSerializer::class)
     var age: Int = 20,
 
-    val child: Child?
+    val child: Child?,
+    val children: List<Child> = listOf(Child("fffddd"), Child("bbbb"))
 
 )
 
-data class Child(val name: String = "ddd")
+data class Child(val name: String = "ddd", val description: String = "descr")

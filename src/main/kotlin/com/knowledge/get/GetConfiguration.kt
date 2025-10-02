@@ -1,6 +1,7 @@
 package com.knowledge.get
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.knowledge.get.controller.handler.MaskingResultHandler
 import com.knowledge.get.kotlin.model.Item
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -16,6 +17,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import org.springframework.kafka.support.serializer.JsonDeserializer
 import org.springframework.util.backoff.FixedBackOff
+import org.springframework.web.reactive.HandlerResultHandler
 
 @Configuration
 class GetConfiguration(private val kafkaTemplate: KafkaTemplate<String, Any>) {
@@ -24,6 +26,11 @@ class GetConfiguration(private val kafkaTemplate: KafkaTemplate<String, Any>) {
 //    fun rSocketRequester(builder: RSocketRequester.Builder): RSocketRequester {
 //        return builder.tcp("localhost", 7000)
 //    }
+
+    @Bean
+    fun maskingResultHandler(delegates: List<HandlerResultHandler>): MaskingResultHandler {
+        return MaskingResultHandler(delegates)
+    }
 
     @Bean
     fun itemKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, Item> {
